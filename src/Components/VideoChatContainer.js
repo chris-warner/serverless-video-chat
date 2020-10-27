@@ -65,3 +65,5 @@ class VideoChatContainer extends React.Component {
          />
     }
 }
+
+export default VideoChatContainer;
