@@ -31,7 +31,20 @@ export default class VideoChat extends React.Component {
 
                 <video ref={this.props.setLocalVideoRef} autoPlay playsInline></video>
             </div>
+            <div>
+                <label>{this.props.connectedUser}</label>
+                <video ref={this.props.setRemoteVideoRef} autoPlay playsInline></video>
+            </div>
 
         </div>
+    }
+
+    renderForms = () => {
+        return this.state.isLoggedIn
+          ? <div key='a' className='form'>
+              <label>Call to</label>
+              <input vale={this.state.userToCall} type="text" onChange={e => this.setState({ userToCall: e.target.value})} />
+              <button onCLick={this.onStartCallClicked} id="call-btn" className="btn btn-primary">Call</button>
+          </div>
     }
 }
