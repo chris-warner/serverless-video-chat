@@ -1,3 +1,4 @@
+
 export const doLogin = async (username, database, handleUpdate) => {
 
 }
@@ -11,5 +12,6 @@ export const doAnswer = async (to, answer, database, username) => {
 }
 
 export const doCandidate = async (to, candidate, database, username) => {
-    // send the new candidate to the peer
+  // send the new candiate to the peer
+
 }
