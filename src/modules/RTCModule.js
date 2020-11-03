@@ -9,7 +9,11 @@ export const createOffer = async (connection, localStream, userToCall, doOffer, 
 
 export const initiateLocalStream = async () => {
   try {
-
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    })
+    return stream;
   } catch (exception) {
     console.error(exception)
   }
@@ -19,6 +23,11 @@ export const initiateConnection = async () => {
     // create a connection
     // using Google public stun server
 
+    const configuration = {
+      iceServers: [{ urls: 'stun:stun2.1.google.com:19302' }]
+    }
+    const conn = new RTCPeerConnection(configuration)
+    return conn
   } catch (exception) {
     console.error(exception)
   }
