@@ -45,6 +45,23 @@ export default class VideoChat extends React.Component {
               <label>Call to</label>
               <input vale={this.state.userToCall} type="text" onChange={e => this.setState({ userToCall: e.target.value})} />
               <button onCLick={this.onStartCallClicked} id="call-btn" className="btn btn-primary">Call</button>
+
           </div>
+          : <div key='b' className='form'>
+              <label>Type a name</label>
+              <input value="this.state.username" typ="text" onChange={e => this.setState({ username: e.target.vale})} />
+
+              <button onClick={this.onLoginClicked} id='login-btn' className="btn btn-primary">Login</button>
+
+          </div>
+    }
+
+    render () {
+        return <section id="container">
+            {this.props.connectedUser ? null : this.renderForms()}
+
+            {this.renderVideos()}
+            
+        </section>
     }
 }
