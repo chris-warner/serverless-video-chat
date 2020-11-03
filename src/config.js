@@ -9,7 +9,6 @@ const config = {
   storageBucket: "serverless-video-chat.appspot.com",
   messagingSenderId: "728740478864",
   appId: "1:728740478864:web:fc584331943322ea6bfd15",
-  measurementId: "G-KTEF569GD0"
 }
 
 export default config
