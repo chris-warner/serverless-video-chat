@@ -48,7 +48,7 @@ export const listenToConnectionEvents = (conn, username, remoteUsername, databas
     }
   }
   // when a remote user adds stream to the peer connection, we display it
-  conn.ontrack= function (e) {
+  conn.ontrack = function (e) {
     if (remoteVideoRef.srcObject !== e.streams[0]) {
       remoteVideoRef.srcObject = e.streams[0]
     }
@@ -58,27 +58,30 @@ export const listenToConnectionEvents = (conn, username, remoteUsername, databas
 export const sendAnswer = async (conn, localStream, notif, doAnswer, database, username) => {
   try {
     // add the localstream to the connection
+    conn.addStream(localStream)
     // set the remote and local descriptions and create an answer
+    const offer = JSON.parse(notif.offer)
+    conn.setRemoteDescription(offer)
 
     // create an answer to an offer
-
+    const answer = await conn.createAnswer()
+    conn.setLocalDescription(answer)
     // send answer to the other peer
+    doAnswer(notif.from, answer, database, username)
 
   } catch (exception) {
     console.error(exception)
   }
 }
 
-export const startCall = (username, userToCall) => {
-  const { database, localConnection, localstream } = this.state
-  // listen to the events first
-  listenToConnectionEvents(localConnection, username, userToCall, database, this.remoteVideoRef, doCandidate)
-  // create a new offer
-  createOffer(localConnection, localstream, userToCall, doOffer, database, username)
+export const startCall = (conn, notif) => {
+const answer = JSON.parse(notif.answer)
+conn.setRemoteDescription(answer)
 
 }
 
-export const addCandidate = (yourConn, notif) => {
+export const addCandidate = (conn, notif) => {
   // apply the new received candidate to the connection
-
+  const candidate = JSON.parse(notif.candidate)
+  conn.addIceCandidate(new RTCIceCandidate(candidate))
 }

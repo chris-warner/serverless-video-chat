@@ -1,12 +1,12 @@
 import React from 'react'
 import './App.css'
 import 'firebase/database'
-
 import config from './config'
 import VideoChat from './VideoChat'
-import { doLogin } from './modules/FirebaseModule'
+import { doAnswer, doLogin, doCandidate } from './modules/FirebaseModule'
 import firebase from 'firebase/app'
-import { initiateConnection, initiateLocalStream } from './modules/RTCModule'
+import { initiateConnection, initiateLocalStream, listenToConnectionEvents, sendAnswer, startCall, addCandidate } from './modules/RTCModule'
+import 'webrtc-adapter'
 
 class VideoChatContainer extends React.Component {
   constructor(props) {
@@ -38,6 +38,17 @@ class VideoChatContainer extends React.Component {
 
   shouldComponentUpdate (nextProps, nextState) {
     // prevent rerenders if not necessary
+    if (this.state.database !== nextState.database) {
+      return false
+    }
+
+    if(this.state.localStream !== nextState.localStream){
+      return false
+    }
+
+    if(this.state.localConnection !== nextState.localConnection){
+      return false
+    }
 
     return true
   }
@@ -64,19 +75,30 @@ class VideoChatContainer extends React.Component {
 
   handleUpdate = (notif, username) => {
     // read the received notif and apply it
+    const { database, localConnection, localStream } = this.state
 
     if (notif) {
       switch (notif.type) {
         case 'offer':
-          // listen to the connection events
 
+        this.setState({
+          connectedUser: notif.from
+        })
+          // listen to the connection events
+          listenToConnectionEvents(localConnection, username, notif.from, database, this.remoteVideoRef, doCandidate)
           // send a answer
+          sendAnswer(localConnection, localStream, notif, doAnswer,database, username)
           break
         case 'answer':
+          this.setState({
+            connectedUser: notif.from
+          })
           // start the call
+          startCall(localConnection, notif)
           break
         case 'candidate':
           // add candidate to our connection
+          addCandidate(localConnection, notif)
           break
         default:
           break
