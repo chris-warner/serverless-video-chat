@@ -43,3 +43,11 @@ export const sendAnswer = async (conn, localStream, notif, doAnswer, database, u
         console.error(exception);
     }
 }
+
+export const startCall = (yourConn, notif) => {
+    // should be called when we received an answer from other peer to start the call and set remote description
+}
+
+export const addCandidate = (yourConn, notif) => {
+    // apply the new received candidate to the connection
+}
