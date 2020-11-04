@@ -1,15 +1,15 @@
 import React from 'react'
 import './App.css'
+import { createOffer, initiateConnection, startCall, sendAnswer, addCandidate, initiateLocalStream, listenToConnectionEvents } from './modules/RTCModule'
+import firebase from 'firebase/app'
 import 'firebase/database'
 import config from './config'
-import VideoChat from './VideoChat'
-import { doAnswer, doLogin, doCandidate } from './modules/FirebaseModule'
-import firebase from 'firebase/app'
-import { initiateConnection, initiateLocalStream, listenToConnectionEvents, sendAnswer, startCall, addCandidate } from './modules/RTCModule'
+import { doOffer, doAnswer, doLogin, doCandidate } from './modules/FirebaseModule'
 import 'webrtc-adapter'
+import VideoChat from './VideoChat'
 
 class VideoChatContainer extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       database: null,
@@ -21,100 +21,94 @@ class VideoChatContainer extends React.Component {
     this.remoteVideoRef = React.createRef()
   }
 
-  componentDidMount = async () => {
-    // initialize firebase
-    firebase.initializeApp(config)
-    // getting local video stream
-    const localStream = await initiateLocalStream()
-    this.localVideoRef.srcObject = localStream
-    // create the local connection
-    const localConnection = await initiateConnection()
-    this.setState({
-      database: firebase.database(),
-      localStream,
-      localConnection
-    })
-  }
+    componentDidMount = async () => {
+      firebase.initializeApp(config)
 
-  shouldComponentUpdate (nextProps, nextState) {
-    // prevent rerenders if not necessary
-    if (this.state.database !== nextState.database) {
-      return false
+      // getting local video stream
+      const localStream = await initiateLocalStream()
+      this.localVideoRef.srcObject = localStream
+
+      const localConnection = await initiateConnection()
+
+      this.setState({
+        database: firebase.database(),
+        localStream,
+        localConnection
+      })
     }
 
-    if(this.state.localStream !== nextState.localStream){
-      return false
+    shouldComponentUpdate (nextProps, nextState) {
+      if (this.state.database !== nextState.database) {
+        return false
+      }
+      if (this.state.localStream !== nextState.localStream) {
+        return false
+      }
+      if (this.state.localConnection !== nextState.localConnection) {
+        return false
+      }
+
+      return true
     }
 
-    if(this.state.localConnection !== nextState.localConnection){
-      return false
+    startCall = async (username, userToCall) => {
+      const { localConnection, database, localStream } = this.state
+      listenToConnectionEvents(localConnection, username, userToCall, database, this.remoteVideoRef, doCandidate)
+      // create an offer
+      createOffer(localConnection, localStream, userToCall, doOffer, database, username)
     }
 
-    return true
-  }
+    onLogin = async (username) => {
+      return await doLogin(username, this.state.database, this.handleUpdate)
+    }
 
-  startCall = async (username, userToCall) => {
-    // listen to the events first
+    setLocalVideoRef = ref => {
+      this.localVideoRef = ref
+    }
 
-    // create a new offer
+    setRemoteVideoRef = ref => {
+      this.remoteVideoRef = ref
+    }
 
-  }
+    handleUpdate = (notif, username) => {
+      const { localConnection, database, localStream } = this.state
 
-  onLogin = async (username) => {
-    // do the login phase
-    await doLogin(username, this.state.database, this.handleUpdate)
-  }
+      if (notif) {
+        switch (notif.type) {
+          case 'offer':
+            this.setState({
+              connectedUser: notif.from
+            })
 
-  setLocalVideoRef = ref => {
-    this.localVideoRef = ref
-  }
+            listenToConnectionEvents(localConnection, username, notif.from, database, this.remoteVideoRef, doCandidate)
 
-  setRemoteVideoRef = ref => {
-    this.remoteVideoRef = ref
-  }
+            sendAnswer(localConnection, localStream, notif, doAnswer, database, username)
+            break
+          case 'answer':
 
-  handleUpdate = (notif, username) => {
-    // read the received notif and apply it
-    const { database, localConnection, localStream } = this.state
-
-    if (notif) {
-      switch (notif.type) {
-        case 'offer':
-
-        this.setState({
-          connectedUser: notif.from
-        })
-          // listen to the connection events
-          listenToConnectionEvents(localConnection, username, notif.from, database, this.remoteVideoRef, doCandidate)
-          // send a answer
-          sendAnswer(localConnection, localStream, notif, doAnswer,database, username)
-          break
-        case 'answer':
-          this.setState({
-            connectedUser: notif.from
-          })
-          // start the call
-          startCall(localConnection, notif)
-          break
-        case 'candidate':
-          // add candidate to our connection
-          addCandidate(localConnection, notif)
-          break
-        default:
-          break
+            this.setState({
+              connectedUser: notif.from
+            })
+            startCall(localConnection, notif)
+            break
+          case 'candidate':
+            addCandidate(localConnection, notif)
+            break
+          default:
+            break
+        }
       }
     }
-  }
 
-  render() {
-    return <VideoChat
-      startCall={this.startCall}
-      onLogin={this.onLogin}
-      setLocalVideoRef={this.setLocalVideoRef}
-      setRemoteVideoRef={this.setRemoteVideoRef}
-      connectedUser={this.state.connectedUser}
-    />
-  }
+    render () {
+      return <VideoChat
+        startCall={this.startCall}
+        onLogin={this.onLogin}
+        setLocalVideoRef={this.setLocalVideoRef}
+        setRemoteVideoRef={this.setRemoteVideoRef}
+        connectedUser={this.state.connectedUser}
+      />
+    }
 }
 
 export default VideoChatContainer
