@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/serverless-video-chat/static/css/main.b93526a0.chunk.css",
+    "main.js": "/serverless-video-chat/static/js/main.dd576088.chunk.js",
+    "main.js.map": "/serverless-video-chat/static/js/main.dd576088.chunk.js.map",
+    "runtime-main.js": "/serverless-video-chat/static/js/runtime-main.b2351a0a.js",
+    "runtime-main.js.map": "/serverless-video-chat/static/js/runtime-main.b2351a0a.js.map",
+    "static/js/2.06a45586.chunk.js": "/serverless-video-chat/static/js/2.06a45586.chunk.js",
+    "static/js/2.06a45586.chunk.js.map": "/serverless-video-chat/static/js/2.06a45586.chunk.js.map",
+    "index.html": "/serverless-video-chat/index.html",
+    "precache-manifest.e48c93d5657a6778e651e5b90f46fb70.js": "/serverless-video-chat/precache-manifest.e48c93d5657a6778e651e5b90f46fb70.js",
+    "service-worker.js": "/serverless-video-chat/service-worker.js",
+    "static/css/main.b93526a0.chunk.css.map": "/serverless-video-chat/static/css/main.b93526a0.chunk.css.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.b2351a0a.js",
+    "static/js/2.06a45586.chunk.js",
+    "static/css/main.b93526a0.chunk.css",
+    "static/js/main.dd576088.chunk.js"
+  ]
+}
